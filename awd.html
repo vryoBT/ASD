@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Klavye Gitar</title>
+
+<style>
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(10,80px);
+gap:8px;
+justify-content:center;
+margin-top:40px;
+}
+
+.key{
+background:#333;
+border:2px solid white;
+padding:20px;
+font-size:20px;
+cursor:pointer;
+transition:0.15s;
+}
+
+.key:hover{
+background:#555;
+}
+
+.active{
+background:lime;
+color:black;
+}
+
+#score{
+font-size:25px;
+margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎸 Klavye Gitar</h1>
+<p>Klavye tuşlarına bas</p>
+
+<div id="score">Puan: 0</div>
+
+<div class="grid" id="keys"></div>
+
+<script>
+
+let score=0
+const ctx=new (window.AudioContext||window.webkitAudioContext)()
+
+const keys=[
+"q","w","e","r","t","y","u","i","o","p","ü",
+"a","s","d","f","g","h","j","k","l","ş","i",
+"z","x","c","v","b","n","m","ö","ç"
+]
+
+const container=document.getElementById("keys")
+
+keys.forEach(k=>{
+let div=document.createElement("div")
+div.className="key"
+div.innerText=k.toUpperCase()
+div.dataset.key=k
+container.appendChild(div)
+})
+
+const sounds={}
+let base=220
+
+keys.forEach((k,i)=>{
+sounds[k]=base+i*20
+})
+
+function play(freq){
+
+let osc=ctx.createOscillator()
+let gain=ctx.createGain()
+
+osc.type="triangle"
+osc.frequency.value=freq
+
+osc.connect(gain)
+gain.connect(ctx.destination)
+
+gain.gain.setValueAtTime(1,ctx.currentTime)
+gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1)
+
+osc.start()
+osc.stop(ctx.currentTime+1)
+
+}
+
+function press(key){
+
+let btn=document.querySelector(`[data-key="${key}"]`)
+if(!btn) return
+
+btn.classList.add("active")
+
+setTimeout(()=>{
+btn.classList.remove("active")
+},120)
+
+play(sounds[key])
+
+score++
+document.getElementById("score").innerText="Puan: "+score
+
+}
+
+document.addEventListener("keydown",(e)=>{
+press(e.key.toLowerCase())
+})
+
+document.querySelectorAll(".key").forEach(btn=>{
+btn.onclick=()=>press(btn.dataset.key)
+})
+
+</script>
+
+</body>
+</html>
