@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Gitar Oyunu</title>
+
+<style>
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+h1{
+margin-top:20px;
+}
+
+.guitar{
+display:grid;
+grid-template-columns:repeat(4,120px);
+gap:15px;
+justify-content:center;
+margin-top:40px;
+}
+
+.key{
+background:#333;
+border:2px solid white;
+padding:40px;
+font-size:30px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.key:hover{
+background:#555;
+}
+
+.active{
+background:lime;
+color:black;
+}
+
+#score{
+font-size:25px;
+margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎸 Gitar Oyunu</h1>
+<p>Klavye tuşlarına bas veya kutulara tıkla</p>
+
+<div id="score">Puan: 0</div>
+
+<div class="guitar">
+
+<div class="key" data-key="a">A</div>
+<div class="key" data-key="s">S</div>
+<div class="key" data-key="d">D</div>
+<div class="key" data-key="f">F</div>
+
+<div class="key" data-key="g">G</div>
+<div class="key" data-key="h">H</div>
+<div class="key" data-key="j">J</div>
+<div class="key" data-key="k">K</div>
+
+</div>
+
+<script>
+
+let score=0
+
+const sounds={
+a:261.63,
+s:293.66,
+d:329.63,
+f:349.23,
+g:392.00,
+h:440.00,
+j:493.88,
+k:523.25
+}
+
+function playSound(freq){
+
+let ctx=new (window.AudioContext || window.webkitAudioContext)()
+
+let osc=ctx.createOscillator()
+let gain=ctx.createGain()
+
+osc.type="triangle"
+osc.frequency.value=freq
+
+osc.connect(gain)
+gain.connect(ctx.destination)
+
+osc.start()
+
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+ctx.currentTime+1
+)
+
+}
+
+function activate(key){
+
+let box=document.querySelector(`[data-key="${key}"]`)
+
+if(!box) return
+
+box.classList.add("active")
+
+setTimeout(()=>{
+box.classList.remove("active")
+},150)
+
+playSound(sounds[key])
+
+score++
+document.getElementById("score").innerText="Puan: "+score
+
+}
+
+document.addEventListener("keydown",(e)=>{
+activate(e.key)
+})
+
+document.querySelectorAll(".key").forEach(btn=>{
+btn.onclick=()=>{
+activate(btn.dataset.key)
+}
+})
+
+</script>
+
+</body>
+</html>
