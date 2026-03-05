@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Gitar Oyunu</title>
+
+<style>
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+.guitar{
+display:grid;
+grid-template-columns:repeat(6,110px);
+gap:12px;
+justify-content:center;
+margin-top:40px;
+}
+
+.key{
+background:#333;
+border:2px solid white;
+padding:35px;
+font-size:26px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.key:hover{background:#555;}
+
+.active{
+background:lime;
+color:black;
+}
+
+#score{
+font-size:25px;
+margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎸 Gitar Oyunu</h1>
+<p>A S D F G H J K L Ş İ</p>
+
+<div id="score">Puan: 0</div>
+
+<div class="guitar">
+
+<div class="key" data-key="a">A</div>
+<div class="key" data-key="s">S</div>
+<div class="key" data-key="d">D</div>
+<div class="key" data-key="f">F</div>
+<div class="key" data-key="g">G</div>
+<div class="key" data-key="h">H</div>
+
+<div class="key" data-key="j">J</div>
+<div class="key" data-key="k">K</div>
+<div class="key" data-key="l">L</div>
+<div class="key" data-key="s2">Ş</div>
+<div class="key" data-key="i2">İ</div>
+
+</div>
+
+<script>
+
+let score=0
+const ctx=new (window.AudioContext||window.webkitAudioContext)()
+
+const sounds={
+a:261,
+s:293,
+d:329,
+f:349,
+g:392,
+h:440,
+j:493,
+k:523,
+l:587,
+s2:659,
+i2:698
+}
+
+function playSound(freq){
+
+let osc=ctx.createOscillator()
+let gain=ctx.createGain()
+
+osc.type="triangle"
+osc.frequency.value=freq
+
+osc.connect(gain)
+gain.connect(ctx.destination)
+
+gain.gain.setValueAtTime(1,ctx.currentTime)
+gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1)
+
+osc.start()
+osc.stop(ctx.currentTime+1)
+
+}
+
+function activate(key){
+
+let box=document.querySelector(`[data-key="${key}"]`)
+if(!box) return
+
+box.classList.add("active")
+
+setTimeout(()=>{
+box.classList.remove("active")
+},120)
+
+playSound(sounds[key])
+
+score++
+document.getElementById("score").innerText="Puan: "+score
+
+}
+
+document.addEventListener("keydown",(e)=>{
+
+if(e.key==="a") activate("a")
+if(e.key==="s") activate("s")
+if(e.key==="d") activate("d")
+if(e.key==="f") activate("f")
+if(e.key==="g") activate("g")
+if(e.key==="h") activate("h")
+if(e.key==="j") activate("j")
+if(e.key==="k") activate("k")
+if(e.key==="l") activate("l")
+if(e.key==="ş") activate("s2")
+if(e.key==="i" || e.key==="İ") activate("i2")
+
+})
+
+document.querySelectorAll(".key").forEach(btn=>{
+btn.onclick=()=>{
+activate(btn.dataset.key)
+}
+})
+
+</script>
+
+</body>
+</html>
